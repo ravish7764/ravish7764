@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripSplit - Expense Sharing Calculator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* Auth Container Styles */
+        .auth-container {
+            background: rgba(255, 255, 255, 0.93);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #1a2a6c;
+        }
+        
+        .auth-logo {
+            background: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .auth-logo i {
+            font-size: 34px;
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .auth-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .auth-header p {
+            font-size: 1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+        
+        .auth-tab.active {
+            color: #1a2a6c;
+            border-bottom: 3px solid #1a2a6c;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            border-color: #4dabf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        
+        .remember-me input {
+            width: auto;
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 15px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .auth-footer a {
+            color: #1a2a6c;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Group ID link styles */
+        .group-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            background: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .group-link span {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* App Container Styles */
+        .app-container {
+            display: none;
+            width: 100%;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .logo {
+            background: white;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .logo i {
+            font-size: 34px;
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .app-card {
+            background: rgba(255, 255, 255, 0.93);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 70vh;
+        }
+        
+        .app-content {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            gap: 15px;
+        }
+        
+        .section {
+            flex: 1;
+            min-width: 280px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        .section h2 {
+            color: #1a2a6c;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.3rem;
+        }
+        
+        .section h2 i {
+            font-size: 1.3rem;
+        }
+        
+        .participant-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .participant-tag {
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .participant-tag button {
+            background: transparent;
+            color: #dc3545;
+            width: auto;
+            padding: 0;
+            font-size: 15px;
+        }
+        
+        .expense-list {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-right: 8px;
+        }
+        
+        .expense-item {
+            background: white;
+            border-left: 4px solid #1a2a6c;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            position: relative;
+        }
+        
+        .expense-item h3 {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            color: #1a2a6c;
+            font-size: 1.1rem;
+        }
+        
+        .expense-item p {
+            color: #6c757d;
+            font-size: 13px;
+            margin: 3px 0;
+        }
+        
+        .results-section {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .results-section.active {
+            display: block;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .balance-card, .transaction-card, .history-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.95rem;
+        }
+        
+        .owes {
+            color: #dc3545;
+        }
+        
+        .owed {
+            color: #28a745;
+        }
+        
+        .zero {
+            color: #6c757d;
+        }
+        
+        .transaction-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .action-buttons button {
+            width: auto;
+            padding: 10px 20px;
+        }
+        
+        .persistence-info {
+            background: #e3f2fd;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: center;
+            font-size: 13px;
+            color: #0d47a1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .delete-expense {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: transparent;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+            width: auto;
+            padding: 0;
+        }
+        
+        .saved-indicator {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            background: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .saved-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .payment-history-container {
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 12px;
+            padding-right: 8px;
+        }
+        
+        .payer-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .payer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .payer-name {
+            font-weight: 600;
+            color: #1a2a6c;
+            font-size: 1rem;
+        }
+        
+        .total-paid {
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e9ecef;
+            font-size: 0.9rem;
+        }
+        
+        .payment-participants {
+            color: #6c757d;
+            font-size: 12px;
+        }
+        
+        .payment-amount {
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+        
+        .no-payments {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .firebase-status {
+            position: fixed;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 1000;
+        }
+        
+        .firebase-status.connected {
+            background: #28a745;
+        }
+        
+        .firebase-status.disconnected {
+            background: #dc3545;
+        }
+        
+        .user-info {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 30px;
+            padding: 6px 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            font-size: 14px;
+        }
+        
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(to right, #1a2a6c, #b21f1f);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            width: auto;
+        }
+        
+        .group-info {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 8px auto 15px;
+            text-align: center;
+            max-width: 600px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .group-id {
+            font-weight: 600;
+            color: #1a2a6c;
+            display: inline-block;
+            background: #e3f2fd;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-left: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .group-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        
+        .group-actions button {
+            padding: 5px 10px;
+            font-size: 13px;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 20px;
+            }
+            
+            .app-content {
+                flex-direction: column;
+            }
+            
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-buttons button {
+                width: 100%;
+            }
+            
+            .user-info {
+                top: 10px;
+                right: 10px;
+                font-size: 13px;
+            }
+            
+            .firebase-status {
+                bottom: 10px;
+                left: 10px;
+                font-size: 12px;
+            }
+            
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                min-width: 100%;
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .auth-container {
+                padding: 15px;
+            }
+            
+            .auth-header h1 {
+                font-size: 1.6rem;
+            }
+            
+            .auth-tab {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .group-info {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Toast notification for group ID */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Join group section */
+        .join-group-section {
+            display: none;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .join-group-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Authentication Container -->
+    <div class="auth-container" id="auth-container">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-calculator"></i>
+            </div>
+            <h1>TripSplit</h1>
+            <p>Track expenses and split costs with your group</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <div class="auth-tab active" data-tab="login">Sign In</div>
+            <div class="auth-tab" data-tab="signup">Sign Up</div>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="auth-form active" id="login-form">
+            <div class="input-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="Enter your email">
+            </div>
+            
+            <div class="input-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password">
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="remember-me">
+                <label for="remember-me">Remember me for 5 days</label>
+            </div>
+            
+            <button id="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            
+            <div class="auth-footer">
+                <p>Don't have an account? <a href="#" id="show-signup">Sign Up</a></p>
+            </div>
+        </div>
+        
+        <!-- Signup Form -->
+        <div class="auth-form" id="signup-form">
+            <div class="input-group">
+                <label for="signup-name">Full Name</label>
+                <input type="text" id="signup-name" placeholder="Enter your name">
+            </div>
+            
+            <div class="input-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" placeholder="Enter your email">
+            </div>
+            
+            <div class="input-group">
+                <label for="signup-password">Password (min 6 characters)</label>
+                <input type="password" id="signup-password" placeholder="Create a password">
+            </div>
+            
+            <div class="input-group">
+                <label for="signup-confirm">Confirm Password</label>
+                <input type="password" id="signup-confirm" placeholder="Confirm your password">
+            </div>
+            
+            <div class="input-group">
+                <label for="group-id">Group ID (Optional - Join existing group)</label>
+                <input type="text" id="group-id" placeholder="Enter existing group ID">
+                <div class="group-link" id="copy-group-link">
+                    <i class="fas fa-link"></i>
+                    <span>Share this group ID with friends</span>
+                    <i class="fas fa-copy"></i>
+                </div>
+            </div>
+            
+            <button id="signup-btn">
+                <i class="fas fa-user-plus"></i> Create Account
+            </button>
+            
+            <div class="auth-footer">
+                <p>Already have an account? <a href="#" id="show-login">Sign In</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- App Container (Hidden by default) -->
+    <div class="app-container" id="app-container">
+        <div class="user-info" id="user-info">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-name" id="user-name">User</div>
+            <button class="logout-btn" id="logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+        
+        <div class="container">
+            <header>
+                <div class="logo">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h1>TripSplit - Expense Sharing</h1>
+                <p>Track all payments and see who paid for what</p>
+            </header>
+            
+            <div class="group-info">
+                <p>You are in group: <span class="group-id" id="group-id">Loading...</span></p>
+                <div class="group-actions">
+                    <button id="copy-group-id">
+                        <i class="fas fa-copy"></i> Copy Group ID
+                    </button>
+                    <button id="new-group-btn" class="secondary">
+                        <i class="fas fa-plus"></i> Create New Group
+                    </button>
+                    <button id="join-group-btn" class="secondary">
+                        <i class="fas fa-user-plus"></i> Join Group
+                    </button>
+                </div>
+            </div>
+            
+            <div class="join-group-section" id="join-group-section">
+                <h2><i class="fas fa-users"></i> Join Another Group</h2>
+                <div class="input-group">
+                    <label for="join-group-id">Enter Group ID</label>
+                    <input type="text" id="join-group-id" placeholder="Enter group ID">
+                </div>
+                <div class="action-buttons">
+                    <button id="confirm-join-group">
+                        <i class="fas fa-check"></i> Join Group
+                    </button>
+                    <button id="cancel-join-group" class="secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            
+            <div class="app-card">
+                <div class="app-content">
+                    <!-- Participants Section -->
+                    <div class="section">
+                        <h2><i class="fas fa-users"></i> Setup Participants</h2>
+                        
+                        <div class="input-group">
+                            <label for="participant-name">Participant Name</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="participant-name" placeholder="Enter name">
+                                <button id="add-participant" style="width: auto; padding: 0 15px;">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="participant-list" id="participants-container">
+                            <!-- Participants will be added here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Expenses Section -->
+                    <div class="section">
+                        <h2><i class="fas fa-receipt"></i> Add Expenses</h2>
+                        
+                        <div class="input-group">
+                            <label for="amount">Amount Paid (₹)</label>
+                            <input type="number" id="amount" step="0.01" min="0.01" placeholder="Enter amount">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="payer">Paid By</label>
+                            <select id="payer">
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>Participants</label>
+                            <div id="participants-checkboxes">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="expense-description">Description (e.g., Hotel+Goa+2500)</label>
+                            <input type="text" id="expense-description" placeholder="Enter expense description">
+                        </div>
+                        
+                        <button id="add-expense">
+                            <i class="fas fa-plus-circle"></i> Add Expense
+                        </button>
+                        
+                        <div class="expense-list" id="expenses-list">
+                            <!-- Expenses will be added here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding: 0 15px 15px;">
+                    <button id="calculate-btn" style="margin-top: 15px;">
+                        <i class="fas fa-calculator"></i> Calculate Settlements
+                    </button>
+                </div>
+                
+                <!-- Results Section -->
+                <div class="results-section" id="results-section">
+                    <h2><i class="fas fa-file-invoice-dollar"></i> Settlement Results</h2>
+                    
+                    <div class="results-grid">
+                        <div class="balance-card">
+                            <h3>Net Balances</h3>
+                            <div id="balances-container">
+                                <!-- Balances will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="transaction-card">
+                            <h3>Settlement Transactions</h3>
+                            <div id="transactions-container">
+                                <!-- Transactions will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment History Section -->
+                    <div class="history-card">
+                        <h3><i class="fas fa-history"></i> Payment History</h3>
+                        <p>Detailed breakdown of who paid for what</p>
+                        
+                        <div class="payment-history-container" id="payment-history-container">
+                            <!-- Payment history will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="persistence-info">
+                        <i class="fas fa-database"></i>
+                        <span>Your data is automatically saved to Firebase. It will sync across all your devices.</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="save-results" class="secondary">
+                            <i class="fas fa-download"></i> Export Results
+                        </button>
+                        <button id="reset-app">
+                            <i class="fas fa-redo"></i> Clear All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="saved-indicator" id="saved-indicator">
+        <i class="fas fa-check-circle"></i> Data saved successfully!
+    </div>
+    
+    <div class="firebase-status" id="firebase-status">
+        <i class="fas fa-spinner fa-spin"></i> Connecting to Firebase...
+    </div>
+    
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Group ID copied to clipboard!</span>
+    </div>
+
+    <!-- Import Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-analytics-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6IImq-AGW3xvAbQGTclkTAApkvE5DXIk",
+            authDomain: "trip-split-f1521.firebaseapp.com",
+            databaseURL: "https://trip-split-f1521-default-rtdb.firebaseio.com",
+            projectId: "trip-split-f1521",
+            storageBucket: "trip-split-f1521.firebasestorage.app",
+            messagingSenderId: "857917424427",
+            appId: "1:857917424427:web:d515122a2b1fbbc8f7bb6e",
+            measurementId: "G-Z18Y397BSW"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const auth = firebase.auth();
+        const analytics = firebase.analytics();
+
+        // Update Firebase connection status
+        const firebaseStatus = document.getElementById('firebase-status');
+        database.ref(".info/connected").on("value", function(snapshot) {
+            if (snapshot.val() === true) {
+                firebaseStatus.innerHTML = '<i class="fas fa-check-circle"></i> Connected to Firebase';
+                firebaseStatus.className = 'firebase-status connected';
+            } else {
+                firebaseStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Disconnected from Firebase';
+                firebaseStatus.className = 'firebase-status disconnected';
+            }
+        });
+
+        // Application state
+        const state = {
+            participants: [],
+            expenses: [],
+            groupId: null,
+            user: null
+        };
+
+        // DOM elements
+        const elements = {
+            authContainer: document.getElementById('auth-container'),
+            appContainer: document.getElementById('app-container'),
+            loginForm: document.getElementById('login-form'),
+            signupForm: document.getElementById('signup-form'),
+            loginEmail: document.getElementById('login-email'),
+            loginPassword: document.getElementById('login-password'),
+            rememberMe: document.getElementById('remember-me'),
+            loginBtn: document.getElementById('login-btn'),
+            signupName: document.getElementById('signup-name'),
+            signupEmail: document.getElementById('signup-email'),
+            signupPassword: document.getElementById('signup-password'),
+            signupConfirm: document.getElementById('signup-confirm'),
+            groupIdInput: document.getElementById('group-id'),
+            signupBtn: document.getElementById('signup-btn'),
+            showSignup: document.getElementById('show-signup'),
+            showLogin: document.getElementById('show-login'),
+            copyGroupLink: document.getElementById('copy-group-link'),
+            userInfo: document.getElementById('user-info'),
+            userAvatar: document.getElementById('user-avatar'),
+            userName: document.getElementById('user-name'),
+            logoutBtn: document.getElementById('logout-btn'),
+            groupIdDisplay: document.getElementById('group-id'),
+            copyGroupId: document.getElementById('copy-group-id'),
+            newGroupBtn: document.getElementById('new-group-btn'),
+            joinGroupBtn: document.getElementById('join-group-btn'),
+            joinGroupSection: document.getElementById('join-group-section'),
+            joinGroupInput: document.getElementById('join-group-id'),
+            confirmJoinGroup: document.getElementById('confirm-join-group'),
+            cancelJoinGroup: document.getElementById('cancel-join-group'),
+            participantName: document.getElementById('participant-name'),
+            addParticipantBtn: document.getElementById('add-participant'),
+            participantsContainer: document.getElementById('participants-container'),
+            amountInput: document.getElementById('amount'),
+            payerSelect: document.getElementById('payer'),
+            participantsCheckboxes: document.getElementById('participants-checkboxes'),
+            expenseDescription: document.getElementById('expense-description'),
+            addExpenseBtn: document.getElementById('add-expense'),
+            expensesList: document.getElementById('expenses-list'),
+            calculateBtn: document.getElementById('calculate-btn'),
+            resultsSection: document.getElementById('results-section'),
+            balancesContainer: document.getElementById('balances-container'),
+            transactionsContainer: document.getElementById('transactions-container'),
+            paymentHistoryContainer: document.getElementById('payment-history-container'),
+            saveResultsBtn: document.getElementById('save-results'),
+            resetAppBtn: document.getElementById('reset-app'),
+            savedIndicator: document.getElementById('saved-indicator'),
+            toast: document.getElementById('toast'),
+            toastMessage: document.getElementById('toast-message')
+        };
+
+        // Initialize the application
+        function initApp() {
+            setupAuthEventListeners();
+            checkAuthState();
+        }
+
+        // Set up authentication event listeners
+        function setupAuthEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(`${this.dataset.tab}-form`).classList.add('active');
+                });
+            });
+            
+            // Show signup form
+            elements.showSignup.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                
+                document.querySelector('.auth-tab[data-tab="signup"]').classList.add('active');
+                elements.signupForm.classList.add('active');
+            });
+            
+            // Show login form
+            elements.showLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                
+                document.querySelector('.auth-tab[data-tab="login"]').classList.add('active');
+                elements.loginForm.classList.add('active');
+            });
+            
+            // Login button
+            elements.loginBtn.addEventListener('click', loginUser);
+            
+            // Signup button
+            elements.signupBtn.addEventListener('click', signupUser);
+            
+            // Logout button
+            elements.logoutBtn.addEventListener('click', logoutUser);
+            
+            // Copy group ID button
+            elements.copyGroupId.addEventListener('click', function() {
+                navigator.clipboard.writeText(state.groupId);
+                showToast('Group ID copied to clipboard!');
+            });
+            
+            // Copy group link
+            elements.copyGroupLink.addEventListener('click', function() {
+                navigator.clipboard.writeText(state.groupId);
+                showToast('Group ID copied to clipboard!');
+            });
+            
+            // New group button
+            elements.newGroupBtn.addEventListener('click', createNewGroup);
+            
+            // Join group button
+            elements.joinGroupBtn.addEventListener('click', function() {
+                elements.joinGroupSection.classList.add('active');
+            });
+            
+            // Confirm join group
+            elements.confirmJoinGroup.addEventListener('click', joinGroup);
+            
+            // Cancel join group
+            elements.cancelJoinGroup.addEventListener('click', function() {
+                elements.joinGroupSection.classList.remove('active');
+            });
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            elements.toastMessage.textContent = message;
+            elements.toast.classList.add('show');
+            
+            setTimeout(() => {
+                elements.toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Check authentication state
+        function checkAuthState() {
+            // Check if session is saved in localStorage
+            const savedSession = localStorage.getItem('tripsplit_session');
+            
+            if (savedSession) {
+                const session = JSON.parse(savedSession);
+                
+                // Check if session is still valid (within 5 days)
+                const now = new Date();
+                const sessionDate = new Date(session.timestamp);
+                const daysDiff = (now - sessionDate) / (1000 * 60 * 60 * 24);
+                
+                if (daysDiff < 5) {
+                    // Auto-login with saved credentials
+                    auth.signInWithEmailAndPassword(session.email, session.password)
+                        .then((userCredential) => {
+                            // Signed in 
+                            state.user = userCredential.user;
+                            initAppAfterAuth();
+                        })
+                        .catch((error) => {
+                            // Handle errors
+                            console.error("Auto-login failed:", error);
+                            localStorage.removeItem('tripsplit_session');
+                        });
+                    return;
+                }
+            }
+            
+            // Listen for auth state changes
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in
+                    state.user = user;
+                    initAppAfterAuth();
+                } else {
+                    // User is signed out
+                    elements.authContainer.style.display = 'block';
+                    elements.appContainer.style.display = 'none';
+                }
+            });
+        }
+
+        // Login user
+        function loginUser() {
+            const email = elements.loginEmail.value.trim();
+            const password = elements.loginPassword.value.trim();
+            const rememberMe = elements.rememberMe.checked;
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed in 
+                    state.user = userCredential.user;
+                    
+                    // Save session if "remember me" is checked
+                    if (rememberMe) {
+                        const session = {
+                            email: email,
+                            password: password,
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('tripsplit_session', JSON.stringify(session));
+                    }
+                    
+                    initAppAfterAuth();
+                })
+                .catch((error) => {
+                    alert('Login failed: ' + error.message);
+                });
+        }
+
+        // Sign up user
+        function signupUser() {
+            const name = elements.signupName.value.trim();
+            const email = elements.signupEmail.value.trim();
+            const password = elements.signupPassword.value.trim();
+            const confirmPassword = elements.signupConfirm.value.trim();
+            const groupId = elements.groupIdInput.value.trim();
+            
+            if (!name || !email || !password || !confirmPassword) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            // Create user
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Signed up 
+                    state.user = userCredential.user;
+                    
+                    // Save user profile
+                    return state.user.updateProfile({
+                        displayName: name
+                    });
+                })
+                .then(() => {
+                    // Handle group
+                    if (groupId) {
+                        // Join existing group
+                        state.groupId = groupId;
+                        return database.ref(`groups/${groupId}`).once('value');
+                    } else {
+                        // Create new group
+                        state.groupId = generateGroupId();
+                        return database.ref(`groups/${state.groupId}`).set({
+                            createdBy: state.user.uid,
+                            createdAt: new Date().toISOString(),
+                            name: `${name}'s Group`
+                        });
+                    }
+                })
+                .then((snapshot) => {
+                    if (groupId && !snapshot.exists()) {
+                        alert('Group ID not found. Creating a new group instead.');
+                        state.groupId = generateGroupId();
+                        return database.ref(`groups/${state.groupId}`).set({
+                            createdBy: state.user.uid,
+                            createdAt: new Date().toISOString(),
+                            name: `${name}'s Group`
+                        });
+                    }
+                })
+                .then(() => {
+                    // Save user to group
+                    return database.ref(`groups/${state.groupId}/members/${state.user.uid}`).set({
+                        name: name,
+                        email: email,
+                        joinedAt: new Date().toISOString()
+                    });
+                })
+                .then(() => {
+                    initAppAfterAuth();
+                })
+                .catch((error) => {
+                    alert('Signup failed: ' + error.message);
+                });
+        }
+
+        // Logout user
+        function logoutUser() {
+            auth.signOut().then(() => {
+                // Clear saved session
+                localStorage.removeItem('tripsplit_session');
+                
+                // Reset state
+                state.user = null;
+                state.groupId = null;
+                state.participants = [];
+                state.expenses = [];
+                
+                // Hide app, show auth
+                elements.authContainer.style.display = 'block';
+                elements.appContainer.style.display = 'none';
+            });
+        }
+
+        // Generate group ID
+        function generateGroupId() {
+            return 'group-' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Create new group
+        function createNewGroup() {
+            if (!state.user) return;
+            
+            const newGroupId = generateGroupId();
+            
+            database.ref(`groups/${newGroupId}`).set({
+                createdBy: state.user.uid,
+                createdAt: new Date().toISOString(),
+                name: `${state.user.displayName}'s Group`
+            })
+            .then(() => {
+                // Save user to group
+                return database.ref(`groups/${newGroupId}/members/${state.user.uid}`).set({
+                    name: state.user.displayName,
+                    email: state.user.email,
+                    joinedAt: new Date().toISOString()
+                });
+            })
+            .then(() => {
+                state.groupId = newGroupId;
+                elements.groupIdDisplay.textContent = state.groupId;
+                
+                // Clear existing data
+                state.participants = [];
+                state.expenses = [];
+                renderParticipants();
+                renderExpensesList();
+                renderPaymentHistory();
+                
+                // Save state
+                saveState();
+                
+                showToast(`Created new group! ID: ${state.groupId}`);
+            });
+        }
+
+        // Join existing group
+        function joinGroup() {
+            const groupId = elements.joinGroupInput.value.trim();
+            if (!groupId) {
+                alert('Please enter a group ID');
+                return;
+            }
+            
+            // Check if group exists
+            database.ref(`groups/${groupId}`).once('value')
+                .then(snapshot => {
+                    if (snapshot.exists()) {
+                        // Save user to group
+                        return database.ref(`groups/${groupId}/members/${state.user.uid}`).set({
+                            name: state.user.displayName,
+                            email: state.user.email,
+                            joinedAt: new Date().toISOString()
+                        });
+                    } else {
+                        throw new Error('Group not found');
+                    }
+                })
+                .then(() => {
+                    // Update group ID
+                    state.groupId = groupId;
+                    elements.groupIdDisplay.textContent = state.groupId;
+                    
+                    // Hide join section
+                    elements.joinGroupSection.classList.remove('active');
+                    
+                    // Load group data
+                    loadState();
+                    
+                    showToast('Successfully joined group!');
+                })
+                .catch(error => {
+                    alert('Error joining group: ' + error.message);
+                });
+        }
+
+        // Initialize app after authentication
+        function initAppAfterAuth() {
+            // Update UI
+            elements.authContainer.style.display = 'none';
+            elements.appContainer.style.display = 'block';
+            
+            // Display user info
+            elements.userName.textContent = state.user.displayName || state.user.email;
+            elements.userAvatar.textContent = state.user.displayName ? state.user.displayName.charAt(0).toUpperCase() : state.user.email.charAt(0).toUpperCase();
+            
+            // Load group ID from user data or create new
+            database.ref(`users/${state.user.uid}`).once('value')
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    if (userData && userData.groupId) {
+                        state.groupId = userData.groupId;
+                        elements.groupIdDisplay.textContent = state.groupId;
+                        loadState();
+                    } else {
+                        // Create new group
+                        createNewGroup();
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error loading user data:", error);
+                    createNewGroup();
+                });
+            
+            // Setup app event listeners
+            setupAppEventListeners();
+        }
+
+        // Set up event listeners for the app
+        function setupAppEventListeners() {
+            elements.addParticipantBtn.addEventListener('click', addParticipant);
+            elements.addExpenseBtn.addEventListener('click', addExpense);
+            elements.calculateBtn.addEventListener('click', calculateSettlements);
+            elements.saveResultsBtn.addEventListener('click', saveResults);
+            elements.resetAppBtn.addEventListener('click', resetApp);
+            
+            // Allow adding participant with Enter key
+            elements.participantName.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') addParticipant();
+            });
+        }
+
+        // Save state to Firebase
+        function saveState() {
+            if (!state.user || !state.groupId) return;
+            
+            const tripRef = database.ref(`groups/${state.groupId}/data`);
+            tripRef.set({
+                participants: state.participants,
+                expenses: state.expenses
+            }).then(() => {
+                // Also save group ID to user profile
+                database.ref(`users/${state.user.uid}`).update({
+                    groupId: state.groupId
+                });
+                
+                // Show saved indicator
+                elements.savedIndicator.classList.add('show');
+                setTimeout(() => {
+                    elements.savedIndicator.classList.remove('show');
+                }, 2000);
+            });
+        }
+
+        // Load state from Firebase
+        function loadState() {
+            const tripRef = database.ref(`groups/${state.groupId}/data`);
+            tripRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    state.participants = data.participants || [];
+                    state.expenses = data.expenses || [];
+                    
+                    // Render participants
+                    renderParticipants();
+                    
+                    // Update UI
+                    updatePayerSelect();
+                    updateParticipantsCheckboxes();
+                    renderExpensesList();
+                    renderPaymentHistory();
+                }
+            });
+        }
+
+        // Render participants
+        function renderParticipants() {
+            elements.participantsContainer.innerHTML = '';
+            state.participants.forEach(renderParticipantTag);
+        }
+
+        // Add a new participant
+        function addParticipant() {
+            const name = elements.participantName.value.trim();
+            if (!name) return;
+            
+            if (state.participants.includes(name)) {
+                alert('Participant already exists!');
+                return;
+            }
+            
+            state.participants.push(name);
+            renderParticipantTag(name);
+            updatePayerSelect();
+            updateParticipantsCheckboxes();
+            
+            // Clear input
+            elements.participantName.value = '';
+            elements.participantName.focus();
+            
+            saveState();
+        }
+
+        // Render participant tag
+        function renderParticipantTag(name) {
+            const tag = document.createElement('div');
+            tag.className = 'participant-tag';
+            tag.innerHTML = `
+                ${name}
+                <button class="remove-participant" data-name="${name}">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            elements.participantsContainer.appendChild(tag);
+            
+            // Add event listener to remove button
+            tag.querySelector('.remove-participant').addEventListener('click', function() {
+                removeParticipant(name);
+            });
+        }
+
+        // Remove a participant
+        function removeParticipant(name) {
+            state.participants = state.participants.filter(p => p !== name);
+            
+            // Remove any expenses that include this participant
+            state.expenses = state.expenses.filter(expense => {
+                return expense.payer !== name && !expense.participants.includes(name);
+            });
+            
+            // Re-render UI
+            updatePayerSelect();
+            updateParticipantsCheckboxes();
+            renderExpensesList();
+            renderPaymentHistory();
+            
+            // Re-render participant tags
+            renderParticipants();
+            
+            saveState();
+        }
+
+        // Update payer select dropdown
+        function updatePayerSelect() {
+            elements.payerSelect.innerHTML = '';
+            
+            state.participants.forEach(participant => {
+                const option = document.createElement('option');
+                option.value = participant;
+                option.textContent = participant;
+                elements.payerSelect.appendChild(option);
+            });
+        }
+
+        // Update participants checkboxes
+        function updateParticipantsCheckboxes() {
+            elements.participantsCheckboxes.innerHTML = '';
+            
+            state.participants.forEach(participant => {
+                const label = document.createElement('label');
+                label.style.display = 'flex';
+                label.style.alignItems = 'center';
+                label.style.marginBottom = '8px';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = participant;
+                checkbox.checked = true;
+                checkbox.style.marginRight = '8px';
+                checkbox.style.width = 'auto';
+                
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(participant));
+                elements.participantsCheckboxes.appendChild(label);
+            });
+        }
+
+        // Add a new expense
+        function addExpense() {
+            const amount = parseFloat(elements.amountInput.value);
+            const payer = elements.payerSelect.value;
+            const description = elements.expenseDescription.value.trim() || "Expense";
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (!payer) {
+                alert('Please select a payer');
+                return;
+            }
+            
+            // Get selected participants
+            const selectedParticipants = [];
+            document.querySelectorAll('#participants-checkboxes input:checked').forEach(checkbox => {
+                selectedParticipants.push(checkbox.value);
+            });
+            
+            if (selectedParticipants.length === 0) {
+                alert('Please select at least one participant');
+                return;
+            }
+            
+            // Add expense to state
+            const expense = {
+                id: Date.now(), // Unique ID for each expense
+                amount,
+                payer,
+                description,
+                participants: selectedParticipants,
+                timestamp: new Date()
+            };
+            
+            state.expenses.push(expense);
+            
+            // Render the expense
+            renderExpense(expense);
+            
+            // Clear form
+            elements.amountInput.value = '';
+            elements.expenseDescription.value = '';
+            
+            // Render payment history
+            renderPaymentHistory();
+            
+            saveState();
+        }
+
+        // Render a single expense
+        function renderExpense(expense) {
+            const expenseItem = document.createElement('div');
+            expenseItem.className = 'expense-item';
+            expenseItem.dataset.id = expense.id;
+            expenseItem.innerHTML = `
+                <button class="delete-expense" data-id="${expense.id}">
+                    <i class="fas fa-times"></i>
+                </button>
+                <h3>
+                    <span>${expense.description}</span>
+                    <span>₹${expense.amount.toFixed(2)}</span>
+                </h3>
+                <p>Paid by: ${expense.payer}</p>
+                <p>Shared with: ${expense.participants.join(', ')}</p>
+                <p>Each owes: ₹${(expense.amount / expense.participants.length).toFixed(2)}</p>
+            `;
+            
+            elements.expensesList.appendChild(expenseItem);
+            
+            // Add event listener to delete button
+            expenseItem.querySelector('.delete-expense').addEventListener('click', function() {
+                deleteExpense(expense.id);
+            });
+        }
+
+        // Delete an expense
+        function deleteExpense(expenseId) {
+            state.expenses = state.expenses.filter(expense => expense.id !== expenseId);
+            renderExpensesList();
+            renderPaymentHistory();
+            saveState();
+        }
+
+        // Render all expenses
+        function renderExpensesList() {
+            elements.expensesList.innerHTML = '';
+            state.expenses.forEach(expense => {
+                renderExpense(expense);
+            });
+        }
+
+        // Render payment history
+        function renderPaymentHistory() {
+            elements.paymentHistoryContainer.innerHTML = '';
+            
+            // Group expenses by payer
+            const paymentsByPayer = {};
+            
+            state.expenses.forEach(expense => {
+                if (!paymentsByPayer[expense.payer]) {
+                    paymentsByPayer[expense.payer] = [];
+                }
+                paymentsByPayer[expense.payer].push(expense);
+            });
+            
+            // Calculate total paid by each participant
+            const totalPaid = {};
+            state.participants.forEach(participant => {
+                totalPaid[participant] = 0;
+            });
+            
+            state.expenses.forEach(expense => {
+                totalPaid[expense.payer] += expense.amount;
+            });
+            
+            // Render payment cards
+            let hasPayments = false;
+            
+            for (const payer in paymentsByPayer) {
+                hasPayments = true;
+                const payerCard = document.createElement('div');
+                payerCard.className = 'payer-card';
+                
+                payerCard.innerHTML = `
+                    <div class="payer-header">
+                        <div class="payer-name">${payer}</div>
+                        <div class="total-paid">Total Paid: ₹${totalPaid[payer].toFixed(2)}</div>
+                    </div>
+                `;
+                
+                // Add each payment
+                paymentsByPayer[payer].forEach(payment => {
+                    const paymentItem = document.createElement('div');
+                    paymentItem.className = 'payment-item';
+                    
+                    paymentItem.innerHTML = `
+                        <div>
+                            <div class="payment-amount">${payment.description}</div>
+                            <div class="payment-participants">₹${payment.amount.toFixed(2)} shared with ${payment.participants.join(', ')}</div>
+                        </div>
+                        <div>
+                            <div class="payment-date">${payment.timestamp.toLocaleDateString()}</div>
+                            <div class="payment-share">₹${(payment.amount / payment.participants.length).toFixed(2)} each</div>
+                        </div>
+                    `;
+                    
+                    payerCard.appendChild(paymentItem);
+                });
+                
+                elements.paymentHistoryContainer.appendChild(payerCard);
+            }
+            
+            if (!hasPayments) {
+                elements.paymentHistoryContainer.innerHTML = `
+                    <div class="no-payments">
+                        <i class="fas fa-receipt" style="font-size: 48px; margin-bottom: 15px;"></i>
+                        <p>No payments recorded yet</p>
+                        <p>Add expenses to see payment history</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Calculate settlements
+        function calculateSettlements() {
+            if (state.participants.length === 0) {
+                alert('Please add at least one participant');
+                return;
+            }
+            
+            if (state.expenses.length === 0) {
+                alert('Please add at least one expense');
+                return;
+            }
+            
+            // Initialize balances
+            const balances = {};
+            state.participants.forEach(participant => {
+                balances[participant] = 0;
+            });
+            
+            // Calculate balances
+            state.expenses.forEach(expense => {
+                const amount = expense.amount;
+                const payer = expense.payer;
+                const participants = expense.participants;
+                const share = amount / participants.length;
+                
+                // Payer paid the full amount
+                balances[payer] += amount;
+                
+                // Each participant owes their share
+                participants.forEach(participant => {
+                    balances[participant] -= share;
+                });
+            });
+            
+            // Calculate who owes and who is owed
+            const owes = [];
+            const gets = [];
+            
+            for (const person in balances) {
+                const bal = balances[person];
+                if (bal < -0.01) {
+                    owes.push({ person, amount: -bal });
+                } else if (bal > 0.01) {
+                    gets.push({ person, amount: bal });
+                }
+            }
+            
+            // Sort by amount (largest debts first)
+            owes.sort((a, b) => b.amount - a.amount);
+            gets.sort((a, b) => b.amount - a.amount);
+            
+            // Calculate transactions
+            const transactions = [];
+            let i = 0, j = 0;
+            
+            while (i < owes.length && j < gets.length) {
+                const give = Math.min(owes[i].amount, gets[j].amount);
+                
+                transactions.push({
+                    from: owes[i].person,
+                    to: gets[j].person,
+                    amount: give
+                });
+                
+                owes[i].amount -= give;
+                gets[j].amount -= give;
+                
+                if (owes[i].amount < 0.01) i++;
+                if (gets[j].amount < 0.01) j++;
+            }
+            
+            // Store results in state
+            state.balances = balances;
+            state.transactions = transactions;
+            
+            // Display results
+            displayResults(balances, transactions);
+            
+            saveState();
+        }
+
+        // Display results
+        function displayResults(balances, transactions) {
+            // Show balances
+            elements.balancesContainer.innerHTML = '';
+            for (const person in balances) {
+                const balance = balances[person];
+                const balanceItem = document.createElement('div');
+                balanceItem.className = 'balance-item';
+                
+                const balanceClass = balance < 0 ? 'owes' : (balance > 0 ? 'owed' : 'zero');
+                const balanceText = balance < 0 ? `owes ₹${(-balance).toFixed(2)}` : 
+                                  balance > 0 ? `is owed ₹${balance.toFixed(2)}` : 'is settled';
+                
+                balanceItem.innerHTML = `
+                    <span>${person}</span>
+                    <span class="${balanceClass}">${balanceText}</span>
+                `;
+                
+                elements.balancesContainer.appendChild(balanceItem);
+            }
+            
+            // Show transactions
+            elements.transactionsContainer.innerHTML = '';
+            if (transactions.length === 0) {
+                elements.transactionsContainer.innerHTML = '<p>No transactions needed - everyone is settled!</p>';
+            } else {
+                transactions.forEach(transaction => {
+                    const transactionItem = document.createElement('div');
+                    transactionItem.className = 'transaction-item';
+                    transactionItem.innerHTML = `
+                        <div>
+                            <strong>${transaction.from}</strong> pays 
+                            <strong>${transaction.to}</strong>
+                        </div>
+                        <div class="owed">₹${transaction.amount.toFixed(2)}</div>
+                    `;
+                    elements.transactionsContainer.appendChild(transactionItem);
+                });
+            }
+            
+            // Show results section
+            elements.resultsSection.classList.add('active');
+            
+            // Scroll to results
+            elements.resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Save results as text file
+        function saveResults() {
+            if (!state.balances || !state.transactions) {
+                alert('Please calculate settlements first');
+                return;
+            }
+            
+            let resultText = "TripSplit Expense Sharing Calculator Results\n";
+            resultText += "============================================\n\n";
+            
+            resultText += `Trip ID: ${state.groupId}\n\n`;
+            
+            resultText += "Net Balances:\n";
+            for (const person in state.balances) {
+                const balance = state.balances[person];
+                const balanceText = balance < 0 ? `owes ₹${(-balance).toFixed(2)}` : 
+                                  balance > 0 ? `is owed ₹${balance.toFixed(2)}` : 'is settled';
+                resultText += `${person}: ${balanceText}\n`;
+            }
+            
+            resultText += "\nSettlement Transactions:\n";
+            if (state.transactions.length === 0) {
+                resultText += "No transactions needed - everyone is settled!\n";
+            } else {
+                state.transactions.forEach(transaction => {
+                    resultText += `${transaction.from} pays ₹${transaction.amount.toFixed(2)} to ${transaction.to}\n`;
+                });
+            }
+            
+            resultText += "\nPayment History:\n";
+            state.expenses.forEach(expense => {
+                resultText += `- ${expense.description}: ${expense.payer} paid ₹${expense.amount.toFixed(2)} for ${expense.participants.join(', ')} on ${expense.timestamp.toLocaleDateString()}\n`;
+            });
+            
+            // Create a Blob and download
+            const blob = new Blob([resultText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tripsplit_${state.groupId}_results.txt`;
+            document.body.appendChild(a);
+            a.click();
+            
+            // Clean up
+            setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 100);
+        }
+
+        // Reset the application
+        function resetApp() {
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                state.participants = [];
+                state.expenses = [];
+                delete state.balances;
+                delete state.transactions;
+                
+                // Clear Firebase data
+                database.ref(`groups/${state.groupId}/data`).remove();
+                
+                elements.participantsContainer.innerHTML = '';
+                elements.expensesList.innerHTML = '';
+                elements.balancesContainer.innerHTML = '';
+                elements.transactionsContainer.innerHTML = '';
+                elements.paymentHistoryContainer.innerHTML = '';
+                elements.resultsSection.classList.remove('active');
+                
+                updatePayerSelect();
+                updateParticipantsCheckboxes();
+                
+                // Reset input fields
+                elements.participantName.value = '';
+                elements.amountInput.value = '';
+                elements.expenseDescription.value = '';
+                
+                // Show success message
+                showToast('All data has been cleared!');
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
