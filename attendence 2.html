@@ -1419,6 +1419,117 @@
                 branchContainer.appendChild(branchCard);
             });
         }
+        // Add to the initApp function
+document.getElementById('import-csv-btn').addEventListener('click', () => {
+    document.getElementById('csv-file-input').click();
+});
+
+document.getElementById('csv-file-input').addEventListener('change', handleCsvUpload);
+
+// Add this function to handle CSV upload and parsing
+function handleCsvUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    // Check file extension
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+        showNotification('Please select a valid CSV file', 'error');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const content = e.target.result;
+            parseCsv(content);
+        } catch (error) {
+            showNotification('Error processing CSV file: ' + error.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function parseCsv(csvContent) {
+    const currentClass = classes.find(cls => cls.id === currentClassId);
+    if (!currentClass) {
+        showNotification('No class selected', 'error');
+        return;
+    }
+    
+    const lines = csvContent.split('\n');
+    if (lines.length < 2) {
+        showNotification('CSV file is empty or invalid', 'error');
+        return;
+    }
+    
+    // Skip header row
+    const dataLines = lines.slice(1);
+    const newStudents = [];
+    const rollSet = new Set();
+    let duplicatesFound = false;
+    
+    dataLines.forEach((line, index) => {
+        const trimmedLine = line.trim();
+        if (!trimmedLine) return;
+        
+        const parts = trimmedLine.split(',');
+        if (parts.length < 2) {
+            showNotification(`Invalid data at line ${index + 2}: not enough columns`, 'warning');
+            return;
+        }
+        
+        const roll = parts[0].trim();
+        const name = parts[1].trim();
+        
+        if (!roll) {
+            showNotification(`Skipping line ${index + 2}: missing roll number`, 'warning');
+            return;
+        }
+        
+        // Check for duplicates in CSV
+        if (rollSet.has(roll)) {
+            showNotification(`Duplicate roll number in CSV: ${roll}`, 'warning');
+            duplicatesFound = true;
+            return;
+        }
+        
+        rollSet.add(roll);
+        newStudents.push({ roll, name });
+    });
+    
+    if (newStudents.length === 0) {
+        showNotification('No valid student records found in CSV', 'error');
+        return;
+    }
+    
+    // Check for duplicates in existing class
+    const existingRolls = new Set(currentClass.students.map(s => s.roll));
+    const hasExistingDuplicates = newStudents.some(s => existingRolls.has(s.roll));
+    
+    if (hasExistingDuplicates) {
+        showNotification('Some roll numbers already exist in this class', 'error');
+        return;
+    }
+    
+    // Update class data
+    currentClass.students = [...currentClass.students, ...newStudents];
+    currentClass.numStudents = currentClass.students.length;
+    
+    // Save to localStorage
+    localStorage.setItem('classes', JSON.stringify(classes));
+    
+    // Update UI
+    generateStudentInputs();
+    updateClassDisplays();
+    
+    showNotification(
+        `${newStudents.length} students imported successfully!`,
+        duplicatesFound ? 'warning' : 'success'
+    );
+    
+    // Reset file input
+    document.getElementById('csv-file-input').value = '';
+}
         
         // Update class displays in different views
         function updateClassDisplays() {
