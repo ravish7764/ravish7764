@@ -1,0 +1,2203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teacher's Attendance System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- Add EmailJS script -->
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #ffb703;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --header-height: 70px;
+            --nav-height: 50px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-top: var(--header-height);
+            padding-bottom: var(--nav-height);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        /* Mobile Header */
+        .mobile-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px;
+            height: var(--header-height);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mobile-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .mobile-header .logo i {
+            font-size: 1.5rem;
+        }
+        
+        .mobile-nav-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+        
+        .mobile-nav-toggle:active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            height: var(--nav-height);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid var(--border);
+            z-index: 1000;
+        }
+        
+        .mobile-nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 0.75rem;
+            padding: 8px 5px;
+            width: 20%;
+            text-align: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .mobile-nav-btn i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        .mobile-nav-btn.active {
+            color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        /* Desktop header (hidden on mobile) */
+        .header {
+            display: none;
+        }
+        
+        /* Navigation (hidden on mobile) */
+        .navigation {
+            display: none;
+        }
+        
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            transition: border-color 0.3s;
+            -webkit-appearance: none;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: center;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-success {
+            background-color: #4caf50;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #000;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .student-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .student-info {
+            flex-grow: 1;
+        }
+        
+        .student-roll {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+        
+        .student-name {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        /* Toggle switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* Table styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            min-width: 600px;
+        }
+        
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+        
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            left: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        tr:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+        
+        .present {
+            color: #4caf50;
+            font-weight: 600;
+        }
+        
+        .absent {
+            color: #f44336;
+            font-weight: 600;
+        }
+        
+        .summary-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            width: 100%;
+        }
+        
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .summary-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        .attendance-date {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 12px;
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .date-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        /* Branch selection styles */
+        .branch-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .branch-card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .branch-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+        
+        .branch-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .branch-details {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .branch-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            font-size: 0.85rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        
+        .branch-header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+        
+        /* Student form enhancements */
+        .student-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .student-input-row input {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .roll-input {
+            width: 100px;
+        }
+        
+        .name-input {
+            flex-grow: 2;
+        }
+        
+        .email-input {
+            flex-grow: 2;
+        }
+        
+        .student-form-header {
+            display: none;
+        }
+        
+        .view-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .view-title p {
+            font-size: 0.95rem;
+            margin-top: 5px;
+            color: var(--gray);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 15px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-size: 1.2rem;
+        }
+        
+        .branch-management {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+        
+        .search-box input {
+            flex-grow: 1;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 15px;
+            left: 15px;
+            padding: 15px;
+            background-color: #4caf50;
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transform: translateY(-100px);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .notification.warning {
+            background-color: var(--warning);
+            color: #000;
+        }
+        
+        .notification.info {
+            background-color: var(--primary);
+        }
+        
+        .remove-student-btn {
+            min-width: 40px;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .update-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(67, 97, 238, 0.1);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .update-animation.visible {
+            opacity: 1;
+        }
+        
+        .update-animation i {
+            font-size: 2rem;
+            color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .days-updated {
+            animation: pulse 1s ease;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* CSV Import Styles */
+        .csv-import-container {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .csv-import-container h3 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .csv-import-info {
+            background-color: white;
+            border-radius: var(--radius);
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+        
+        .csv-import-info ul {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+        
+        .csv-import-info li {
+            margin-bottom: 5px;
+        }
+        
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: var(--radius);
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .file-name-display {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .sample-csv-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .sample-csv-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* Desktop styles */
+        @media (min-width: 768px) {
+            :root {
+                --header-height: 100px;
+                --nav-height: 0;
+            }
+            
+            body {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+            
+            .mobile-header, .mobile-nav {
+                display: none;
+            }
+            
+            .header {
+                display: block;
+                text-align: center;
+                margin-bottom: 30px;
+                padding: 20px 0;
+                border-bottom: 2px solid var(--primary);
+            }
+            
+            .header h1 {
+                color: var(--primary);
+                font-size: 2.2rem;
+                margin-bottom: 10px;
+            }
+            
+            .header p {
+                color: var(--gray);
+                font-size: 1.1rem;
+            }
+            
+            .navigation {
+                display: flex;
+                justify-content: center;
+                margin-bottom: 20px;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-btn {
+                padding: 10px 20px;
+                border-radius: 30px;
+                font-weight: 600;
+                background-color: white;
+                border: 2px solid var(--primary);
+                color: var(--primary);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+            
+            .nav-btn.active {
+                background-color: var(--primary);
+                color: white;
+            }
+            
+            .action-buttons {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+                min-width: 200px;
+            }
+            
+            .summary-card {
+                flex-direction: row;
+            }
+            
+            .summary-item {
+                width: auto;
+            }
+            
+            .branch-selector {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .branch-card {
+                flex: 1;
+                min-width: 250px;
+            }
+            
+            .branch-management {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .search-box {
+                width: auto;
+                min-width: 300px;
+            }
+            
+            .notification {
+                left: auto;
+                right: 20px;
+                max-width: 350px;
+            }
+            
+            .student-grid {
+                grid-template-columns: repeat(auto-full, minmax(300px, 1fr));
+            }
+            
+            .file-input-container {
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .file-input-wrapper {
+                width: auto;
+            }
+            
+            .file-input-button {
+                width: auto;
+            }
+        }
+        
+        @media (min-width: 992px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <div class="logo">
+            <i class="fas fa-chalkboard-teacher"></i>
+            <span>Attendance System</span>
+        </div>
+        <button class="mobile-nav-toggle" id="mobile-menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i> <span id="notification-message">Action completed successfully!</span>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chalkboard-teacher"></i> Teacher's Attendance System</h1>
+            <p>Efficiently manage and track student attendance across multiple classes</p>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn active" data-view="branch-selection">Classes</button>
+            <button class="nav-btn" data-view="class-setup">Add Class</button>
+            <button class="nav-btn" data-view="student-form">Students</button>
+            <button class="nav-btn" data-view="attendance-screen">Attendance</button>
+            <button class="nav-btn" data-view="summary-page">Summary</button>
+        </div>
+        
+        <!-- Branch Selection View -->
+        <div id="branch-selection" class="view">
+            <div class="view-title">
+                <h2><i class="fas fa-building"></i> Classes Management</h2>
+                <p>Select a class to manage or view attendance</p>
+            </div>
+            
+            <div class="branch-management">
+                <div class="search-box">
+                    <input type="text" id="branch-search" class="form-control" placeholder="Search classes...">
+                    <button id="search-btn" class="btn"><i class="fas fa-search"></i></button>
+                </div>
+                <button id="add-class-btn" class="btn">
+                    <i class="fas fa-plus"></i> Add New Class
+                </button>
+            </div>
+            
+            <div id="branch-container">
+                <!-- Branch cards will be generated here -->
+            </div>
+        </div>
+        
+        <!-- Class Setup View -->
+        <div id="class-setup" class="view hidden">
+            <div class="view-title">
+                <h2><i class="fas fa-cog"></i> Add New Class</h2>
+                <p>Enter class details to create a new class</p>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-info-circle"></i> Class Details
+                </div>
+                
+                <form id="class-details-form">
+                    <div class="form-group">
+                        <label for="branch">Branch</label>
+                        <input type="text" id="branch" class="form-control" placeholder="e.g. CSE, ME, EE, CE" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="semester">Semester</label>
+                        <input type="number" id="semester" class="form-control" placeholder="e.g. 3, 4, 5" min="1" max="8" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="section">Section</label>
+                        <input type="text" id="section" class="form-control" placeholder="e.g. A, B, C" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="num-students">Number of Students</label>
+                        <input type="number" id="num-students" class="form-control" placeholder="e.e. 30, 40, 50" min="1" max="100" required>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i> Save Class
+                        </button>
+                        <button id="cancel-class" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Student Input Form View -->
+        <div id="student-form" class="view hidden">
+            <div class="branch-header">
+                <div class="view-title" style="margin-bottom: 0;">
+                    <h2><i class="fas fa-user-graduate"></i> Student Details</h2>
+                    <p id="current-class-display">CSE 3A - 40 students</p>
+                </div>
+                <button id="add-student-btn" class="btn">
+                    <i class="fas fa-plus"></i> Add Student
+                </button>
+            </div>
+            
+            <!-- CSV Import Section -->
+            <div class="csv-import-container">
+                <h3><i class="fas fa-file-csv"></i> Import Students from CSV</h3>
+                
+                <div class="csv-import-info">
+                    <p>Upload a CSV file with student data. The file should have the following format:</p>
+                    <ul>
+                        <li>First row is treated as header (will be skipped)</li>
+                        <li>Each subsequent row should contain: Roll Number, Full Name, Email (optional)</li>
+                        <li>Separate values with commas</li>
+                    </ul>
+                    <p>Example:</p>
+                    <pre>Roll No,Name,Email
+1001,John Doe,john@example.com
+1002,Jane Smith,jane@example.com</pre>
+                </div>
+                
+                <div class="file-input-container">
+                    <div class="file-input-wrapper">
+                        <button class="file-input-button">
+                            <i class="fas fa-upload"></i> Choose CSV File
+                        </button>
+                        <input type="file" id="csv-file-input" accept=".csv">
+                    </div>
+                    <button id="import-csv-btn" class="btn btn-success" disabled>
+                        <i class="fas fa-file-import"></i> Import Students
+                    </button>
+                </div>
+                
+                <div class="file-name-display" id="file-name">No file selected</div>
+                
+                <a href="#" id="download-sample-csv" class="sample-csv-link">
+                    <i class="fas fa-download"></i> Download Sample CSV
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-users"></i> Student List
+                </div>
+                
+                <div class="student-form-header">
+                    <div>Roll Number</div>
+                    <div>Full Name</div>
+                    <div>Email</div>
+                    <div>Actions</div>
+                </div>
+                
+                <div id="student-input-container">
+                    <!-- Student inputs will be generated here -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="save-students" class="btn">
+                        <i class="fas fa-save"></i> Save Students
+                    </button>
+                    <button id="back-to-classes" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Classes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Daily Attendance View -->
+        <div id="attendance-screen" class="view hidden">
+            <div class="branch-header">
+                <div class="view-title" style="margin-bottom: 0;">
+                    <h2><i class="fas fa-calendar-check"></i> Daily Attendance</h2>
+                    <p id="attendance-class-display">CSE 3A - 40 students</p>
+                </div>
+                <div class="date-display">
+                    <i class="fas fa-calendar-alt"></i> <span id="today-date"></span>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-clipboard-list"></i> Student Attendance
+                </div>
+                
+                <div id="attendance-list">
+                    <!-- Attendance list will be generated here -->
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="submit-attendance" class="btn">
+                        <i class="fas fa-paper-plane"></i> Submit Attendance
+                    </button>
+                    <button id="view-summary" class="btn btn-outline">
+                        <i class="fas fa-chart-bar"></i> View Summary
+                    </button>
+                    <button id="back-to-classes-from-attendance" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Classes
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Summary Page View -->
+        <div id="summary-page" class="view hidden">
+            <div class="branch-header">
+                <div class="view-title" style="margin-bottom: 0;">
+                    <h2><i class="fas fa-chart-pie"></i> Attendance Summary</h2>
+                    <p id="summary-class-display">CSE 3A - 40 students</p>
+                </div>
+                <div class="date-display">
+                    <i class="fas fa-calendar-alt"></i> <span id="summary-date"></span>
+                </div>
+            </div>
+            
+            <div class="summary-card">
+                <div class="summary-item">
+                    <div class="summary-value" id="total-students">0</div>
+                    <div class="summary-label">Total Students</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="total-days">0</div>
+                    <div class="summary-label">Days Recorded</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" id="avg-attendance">0%</div>
+                    <div class="summary-label">Average Attendance</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-table"></i> Attendance Report
+                </div>
+                
+                <div class="table-container">
+                    <table id="summary-table">
+                        <thead>
+                            <tr>
+                                <th>Roll No</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Days Present</th>
+                                <th>Attendance %</th>
+                                <th>Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summary-table-body">
+                            <!-- Summary data will be generated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="download-csv" class="btn btn-success">
+                        <i class="fas fa-file-csv"></i> Download CSV
+                    </button>
+                    <button id="download-pdf" class="btn btn-danger">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                    <button id="back-to-classes-from-summary" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Back to Classes
+                    </button>
+                    <button id="reset-system" class="btn btn-warning">
+                        <i class="fas fa-redo"></i> Reset System
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <button class="mobile-nav-btn active" data-view="branch-selection">
+            <i class="fas fa-building"></i>
+            <span>Classes</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="class-setup">
+            <i class="fas fa-plus-circle"></i>
+            <span>Add Class</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="student-form">
+            <i class="fas fa-user-graduate"></i>
+            <span>Students</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="attendance-screen">
+            <i class="fas fa-calendar-check"></i>
+            <span>Attendance</span>
+        </button>
+        <button class="mobile-nav-btn" data-view="summary-page">
+            <i class="fas fa-chart-pie"></i>
+            <span>Summary</span>
+        </button>
+    </div>
+
+    <script>
+        // Initialize EmailJS with your Public Key
+        emailjs.init("ycWmpwzmFSVjQ713Y");
+
+        // Data structure to store class information
+        let classes = [];
+        let attendanceRecords = {};
+        let currentClassId = null;
+        
+        // DOM Elements
+        const views = {
+            branchSelection: document.getElementById('branch-selection'),
+            classSetup: document.getElementById('class-setup'),
+            studentForm: document.getElementById('student-form'),
+            attendance: document.getElementById('attendance-screen'),
+            summary: document.getElementById('summary-page')
+        };
+        
+        const navButtons = document.querySelectorAll('.nav-btn');
+        const mobileNavButtons = document.querySelectorAll('.mobile-nav-btn');
+        const classForm = document.getElementById('class-details-form');
+        const studentContainer = document.getElementById('student-input-container');
+        const saveStudentsBtn = document.getElementById('save-students');
+        const backToClassesBtn = document.getElementById('back-to-classes');
+        const attendanceList = document.getElementById('attendance-list');
+        const submitAttendanceBtn = document.getElementById('submit-attendance');
+        const viewSummaryBtn = document.getElementById('view-summary');
+        const todayDate = document.getElementById('today-date');
+        const summaryDate = document.getElementById('summary-date');
+        const summaryTableBody = document.getElementById('summary-table-body');
+        const downloadCsvBtn = document.getElementById('download-csv');
+        const downloadPdfBtn = document.getElementById('download-pdf');
+        const resetSystemBtn = document.getElementById('reset-system');
+        const totalStudentsEl = document.getElementById('total-students');
+        const totalDaysEl = document.getElementById('total-days');
+        const avgAttendanceEl = document.getElementById('avg-attendance');
+        const branchContainer = document.getElementById('branch-container');
+        const addClassBtn = document.getElementById('add-class-btn');
+        const cancelClassBtn = document.getElementById('cancel-class');
+        const currentClassDisplay = document.getElementById('current-class-display');
+        const attendanceClassDisplay = document.getElementById('attendance-class-display');
+        const summaryClassDisplay = document.getElementById('summary-class-display');
+        const addStudentBtn = document.getElementById('add-student-btn');
+        const branchSearch = document.getElementById('branch-search');
+        const searchBtn = document.getElementById('search-btn');
+        const backToClassesFromAttendanceBtn = document.getElementById('back-to-classes-from-attendance');
+        const backToClassesFromSummaryBtn = document.getElementById('back-to-classes-from-summary');
+        const notification = document.getElementById('notification');
+        const notificationMessage = document.getElementById('notification-message');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        
+        // CSV Import Elements
+        const csvFileInput = document.getElementById('csv-file-input');
+        const importCsvBtn = document.getElementById('import-csv-btn');
+        const fileNameDisplay = document.getElementById('file-name');
+        const downloadSampleCsv = document.getElementById('download-sample-csv');
+        
+        // Initialize the application
+        function initApp() {
+            // Load saved data from localStorage if available
+            const savedClasses = localStorage.getItem('classes');
+            const savedAttendance = localStorage.getItem('attendanceRecords');
+            
+            if (savedClasses) {
+                classes = JSON.parse(savedClasses);
+            }
+            
+            if (savedAttendance) {
+                attendanceRecords = JSON.parse(savedAttendance);
+            }
+            
+            // Set today's date
+            const today = new Date();
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            todayDate.textContent = today.toLocaleDateString('en-US', dateOptions);
+            summaryDate.textContent = today.toLocaleDateString('en-US', dateOptions);
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Show the branch selection page by default
+            showView('branch-selection');
+            renderBranchCards();
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'success') {
+            notificationMessage.textContent = message;
+            notification.className = 'notification show ' + type;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Desktop Navigation buttons
+            navButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const view = button.getAttribute('data-view');
+                    showView(view);
+                    
+                    // Update active button
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Render branch cards when showing branch selection
+                    if (view === 'branch-selection') {
+                        renderBranchCards();
+                    }
+                });
+            });
+            
+            // Mobile Navigation buttons
+            mobileNavButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const view = button.getAttribute('data-view');
+                    showView(view);
+                    
+                    // Update active button
+                    mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    // Render branch cards when showing branch selection
+                    if (view === 'branch-selection') {
+                        renderBranchCards();
+                    }
+                });
+            });
+            
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', () => {
+                showNotification('Menu options are available at the bottom navigation', 'warning');
+            });
+            
+            // Class form submission
+            classForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveClassDetails();
+            });
+            
+            // Save students button
+            saveStudentsBtn.addEventListener('click', saveStudentDetails);
+            
+            // Back to classes buttons
+            backToClassesBtn.addEventListener('click', () => showView('branch-selection'));
+            backToClassesFromAttendanceBtn.addEventListener('click', () => showView('branch-selection'));
+            backToClassesFromSummaryBtn.addEventListener('click', () => showView('branch-selection'));
+            
+            // Submit attendance button
+            submitAttendanceBtn.addEventListener('click', submitAttendance);
+            
+            // View summary button
+            viewSummaryBtn.addEventListener('click', () => {
+                generateSummary();
+                showView('summary-page');
+            });
+            
+            // Download CSV button
+            downloadCsvBtn.addEventListener('click', downloadCsv);
+            
+            // Download PDF button
+            downloadPdfBtn.addEventListener('click', downloadPdf);
+            
+            // Reset system button
+            resetSystemBtn.addEventListener('click', resetSystem);
+            
+            // Add class button
+            addClassBtn.addEventListener('click', () => showView('class-setup'));
+            
+            // Cancel class button
+            cancelClassBtn.addEventListener('click', () => showView('branch-selection'));
+            
+            // Add student button
+            addStudentBtn.addEventListener('click', addStudent);
+            
+            // Search button
+            searchBtn.addEventListener('click', () => renderBranchCards(branchSearch.value));
+            
+            // Search input event
+            branchSearch.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    renderBranchCards(branchSearch.value);
+                }
+            });
+            
+            // CSV Import functionality
+            csvFileInput.addEventListener('change', handleCsvFileSelect);
+            importCsvBtn.addEventListener('click', importCsvData);
+            downloadSampleCsv.addEventListener('click', downloadSampleCsvFile);
+        }
+        
+        // Handle CSV file selection
+        function handleCsvFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                fileNameDisplay.textContent = file.name;
+                importCsvBtn.disabled = false;
+            } else {
+                fileNameDisplay.textContent = 'No file selected';
+                importCsvBtn.disabled = true;
+            }
+        }
+        
+        // Import CSV data
+        function importCsvData() {
+            const file = csvFileInput.files[0];
+            if (!file) {
+                showNotification('Please select a CSV file first', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const csvData = e.target.result;
+                    const lines = csvData.split('\n');
+                    
+                    // Skip header row and process data
+                    const students = [];
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (line) {
+                            const values = line.split(',');
+                            if (values.length >= 2) {
+                                students.push({
+                                    roll: values[0].trim(),
+                                    name: values[1].trim(),
+                                    email: values[2] ? values[2].trim() : ''
+                                });
+                            }
+                        }
+                    }
+                    
+                    if (students.length === 0) {
+                        showNotification('No valid student data found in the CSV file', 'error');
+                        return;
+                    }
+                    
+                    // Update current class with imported students
+                    const currentClass = classes.find(cls => cls.id === currentClassId);
+                    if (!currentClass) {
+                        showNotification('No class selected', 'error');
+                        return;
+                    }
+                    
+                    currentClass.students = students;
+                    currentClass.numStudents = students.length;
+                    
+                    // Save to localStorage
+                    localStorage.setItem('classes', JSON.stringify(classes));
+                    
+                    // Update UI
+                    generateStudentInputs();
+                    updateClassDisplays();
+                    
+                    showNotification(`${students.length} students imported successfully!`);
+                    
+                    // Reset file input
+                    csvFileInput.value = '';
+                    fileNameDisplay.textContent = 'No file selected';
+                    importCsvBtn.disabled = true;
+                    
+                } catch (error) {
+                    console.error('Error parsing CSV:', error);
+                    showNotification('Error parsing CSV file. Please check the format.', 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showNotification('Error reading file', 'error');
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // Download sample CSV file
+        function downloadSampleCsvFile(e) {
+            e.preventDefault();
+            
+            const csvContent = "Roll No,Name,Email\n1001,John Doe,john@example.com\n1002,Jane Smith,jane@example.com\n1003,Robert Johnson,robert@example.com";
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'sample_students.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Sample CSV file downloaded');
+        }
+        
+        // Show the specified view and hide others
+        function showView(viewId) {
+            // Hide all views
+            Object.values(views).forEach(view => view.classList.add('hidden'));
+            
+            // Show the requested view
+            document.getElementById(viewId).classList.remove('hidden');
+            
+            // Update UI for specific views
+            if (viewId === 'attendance-screen' && currentClassId) {
+                updateAttendanceScreen();
+            } else if (viewId === 'summary-page' && currentClassId) {
+                generateSummary();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Save class details from the form
+        function saveClassDetails() {
+            const branch = document.getElementById('branch').value.toUpperCase();
+            const semester = document.getElementById('semester').value;
+            const section = document.getElementById('section').value.toUpperCase();
+            const numStudents = parseInt(document.getElementById('num-students').value);
+            
+            const classId = `${branch}_${semester}_${section}`;
+            
+            // Check if class already exists
+            const classExists = classes.some(cls => cls.id === classId);
+            if (classExists) {
+                showNotification('This class already exists!', 'error');
+                return;
+            }
+            
+            // Create new class object
+            const newClass = {
+                id: classId,
+                branch: branch,
+                semester: semester,
+                section: section,
+                numStudents: numStudents,
+                students: []
+            };
+            
+            // Add to classes array
+            classes.push(newClass);
+            
+            // Initialize attendance records for this class
+            if (!attendanceRecords[classId]) {
+                attendanceRecords[classId] = {};
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('classes', JSON.stringify(classes));
+            localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+            
+            // Set as current class
+            currentClassId = classId;
+            
+            // Generate student inputs
+            generateStudentInputs();
+            
+            // Show student form view
+            showView('student-form');
+            
+            // Update class display
+            updateClassDisplays();
+            
+            // Render branch cards
+            renderBranchCards();
+            
+            // Update mobile navigation
+            mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.mobile-nav-btn[data-view="student-form"]').classList.add('active');
+            
+            showNotification('Class created successfully!');
+        }
+        
+        // Render branch cards for branch selection
+        function renderBranchCards(searchTerm = '') {
+            branchContainer.innerHTML = '';
+            
+            // Filter classes based on search term
+            const filteredClasses = classes.filter(cls => {
+                const searchText = searchTerm.toLowerCase();
+                return cls.id.toLowerCase().includes(searchText) || 
+                       cls.branch.toLowerCase().includes(searchText) || 
+                       cls.semester.toString().includes(searchText) || 
+                       cls.section.toLowerCase().includes(searchText);
+            });
+            
+            if (filteredClasses.length === 0) {
+                branchContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No Classes Found</h3>
+                        <p>Create your first class to get started</p>
+                        <button id="create-first-class" class="btn" style="margin-top: 20px;">
+                            <i class="fas fa-plus"></i> Create New Class
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('create-first-class').addEventListener('click', () => {
+                    showView('class-setup');
+                    navButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelector('[data-view="class-setup"]').classList.add('active');
+                    
+                    mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+                    document.querySelector('.mobile-nav-btn[data-view="class-setup"]').classList.add('active');
+                });
+                
+                return;
+            }
+            
+            filteredClasses.forEach(cls => {
+                // Count recorded attendance days for this class
+                const daysRecorded = Object.keys(attendanceRecords[cls.id] || {}).length;
+                
+                // Count students added
+                const studentsAdded = cls.students.length;
+                
+                const branchCard = document.createElement('div');
+                branchCard.className = 'branch-card';
+                if (currentClassId === cls.id) {
+                    branchCard.classList.add('selected');
+                }
+                branchCard.innerHTML = `
+                    <div class="update-animation">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <div class="branch-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        ${cls.branch} ${cls.semester}${cls.section}
+                    </div>
+                    <div class="branch-details">
+                        Class ID: ${cls.id}
+                    </div>
+                    <div class="branch-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${studentsAdded}</div>
+                            <div class="stat-label">Students</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value days-count">${daysRecorded}</div>
+                            <div class="stat-label">Days Recorded</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${cls.numStudents}</div>
+                            <div class="stat-label">Total Capacity</div>
+                        </div>
+                    </div>
+                `;
+                
+                branchCard.addEventListener('click', () => {
+                    // Set as current class
+                    currentClassId = cls.id;
+                    
+                    // Highlight selected card
+                    document.querySelectorAll('.branch-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    branchCard.classList.add('selected');
+                    
+                    // Update class displays
+                    updateClassDisplays();
+                    
+                    // If class has no students, go to student form
+                    if (cls.students.length === 0) {
+                        generateStudentInputs();
+                        showView('student-form');
+                        navButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelector('[data-view="student-form"]').classList.add('active');
+                        
+                        mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelector('.mobile-nav-btn[data-view="student-form"]').classList.add('active');
+                    } else {
+                        // Otherwise go to attendance
+                        updateAttendanceScreen();
+                        showView('attendance-screen');
+                        navButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelector('[data-view="attendance-screen"]').classList.add('active');
+                        
+                        mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+                        document.querySelector('.mobile-nav-btn[data-view="attendance-screen"]').classList.add('active');
+                    }
+                });
+                
+                branchContainer.appendChild(branchCard);
+            });
+        }
+        
+        // Update class displays in different views
+        function updateClassDisplays() {
+            if (!currentClassId) return;
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            const classInfo = `${currentClass.branch} ${currentClass.semester}${currentClass.section} - ${currentClass.students.length} students`;
+            
+            currentClassDisplay.textContent = classInfo;
+            attendanceClassDisplay.textContent = classInfo;
+            summaryClassDisplay.textContent = classInfo;
+        }
+        
+        // Generate student input fields based on number of students
+        function generateStudentInputs() {
+            studentContainer.innerHTML = '';
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            // Check if attendance has been recorded for this class
+            const hasAttendance = attendanceRecords[currentClassId] && Object.keys(attendanceRecords[currentClassId]).length > 0;
+            
+            for (let i = 0; i < currentClass.numStudents; i++) {
+                const isExisting = i < currentClass.students.length;
+                const student = isExisting ? currentClass.students[i] : null;
+                
+                const studentDiv = document.createElement('div');
+                studentDiv.className = 'student-input-row';
+                studentDiv.innerHTML = `
+                    <input type="text" class="form-control roll-input student-roll-input" 
+                           placeholder="Roll Number" value="${student ? student.roll : ''}" 
+                           ${hasAttendance && isExisting ? 'readonly' : ''}>
+                    <input type="text" class="form-control name-input student-name-input" 
+                           placeholder="Full Name" value="${student ? student.name : ''}">
+                    <input type="email" class="form-control email-input student-email-input" 
+                           placeholder="Email Address" value="${student ? student.email || '' : ''}">
+                    <button class="btn btn-danger remove-student-btn" ${isExisting ? '' : 'disabled'}>
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                
+                // Add event listener for remove button
+                const removeBtn = studentDiv.querySelector('.remove-student-btn');
+                removeBtn.addEventListener('click', () => {
+                    removeStudent(i);
+                });
+                
+                studentContainer.appendChild(studentDiv);
+            }
+        }
+        
+        // Add a new student
+        function addStudent() {
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            // Increase the number of students
+            currentClass.numStudents += 1;
+            
+            // Save to localStorage
+            localStorage.setItem('classes', JSON.stringify(classes));
+            
+            // Regenerate student inputs
+            generateStudentInputs();
+            
+            showNotification('New student slot added. Fill in details and save.', 'warning');
+        }
+        
+        // Remove a student
+        function removeStudent(index) {
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass || index >= currentClass.students.length) return;
+            
+            // Remove the student
+            currentClass.students.splice(index, 1);
+            
+            // Decrease the number of students if possible
+            if (currentClass.numStudents > 1) {
+                currentClass.numStudents -= 1;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('classes', JSON.stringify(classes));
+            
+            // Regenerate student inputs
+            generateStudentInputs();
+            
+            showNotification('Student removed successfully.');
+        }
+        
+        // Save student details
+        function saveStudentDetails() {
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            const rollInputs = document.querySelectorAll('.student-roll-input');
+            const nameInputs = document.querySelectorAll('.student-name-input');
+            const emailInputs = document.querySelectorAll('.student-email-input');
+            currentClass.students = [];
+            
+            // Check for duplicate roll numbers
+            const rollSet = new Set();
+            let hasDuplicate = false;
+            
+            for (let i = 0; i < rollInputs.length; i++) {
+                const roll = rollInputs[i].value.trim();
+                const name = nameInputs[i].value.trim() || `Student ${i+1}`;
+                const email = emailInputs[i].value.trim();
+                
+                if (!roll) {
+                    showNotification('Roll number cannot be empty for student ' + (i+1), 'error');
+                    return;
+                }
+                
+                if (rollSet.has(roll)) {
+                    showNotification(`Duplicate roll number: ${roll}`, 'error');
+                    hasDuplicate = true;
+                    break;
+                }
+                
+                rollSet.add(roll);
+                
+                currentClass.students.push({
+                    roll: roll,
+                    name: name,
+                    email: email
+                });
+            }
+            
+            if (hasDuplicate) return;
+            
+            // Save to localStorage
+            localStorage.setItem('classes', JSON.stringify(classes));
+            
+            // Update class displays
+            updateClassDisplays();
+            
+            // Show attendance screen
+            updateAttendanceScreen();
+            showView('attendance-screen');
+            
+            // Update navigation
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[data-view="attendance-screen"]').classList.add('active');
+            
+            mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.mobile-nav-btn[data-view="attendance-screen"]').classList.add('active');
+            
+            showNotification('Student details saved successfully!');
+        }
+        
+        // Update the attendance screen with student list
+        function updateAttendanceScreen() {
+            attendanceList.innerHTML = '';
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            // Get today's date
+            const today = new Date().toISOString().split('T')[0];
+            
+            currentClass.students.forEach(student => {
+                // Check if we have attendance for today
+                const isPresent = attendanceRecords[currentClass.id]?.[today]?.[student.roll] !== false;
+                
+                const studentDiv = document.createElement('div');
+                studentDiv.className = 'student-card';
+                studentDiv.innerHTML = `
+                    <div class="student-info">
+                        <div class="student-roll">${student.roll}</div>
+                        <div class="student-name">${student.name}</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" class="attendance-checkbox" ${isPresent ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                `;
+                
+                attendanceList.appendChild(studentDiv);
+            });
+        }
+        
+        // Submit today's attendance
+        function submitAttendance() {
+            if (!currentClassId) return;
+            
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+            const checkboxes = document.querySelectorAll('.attendance-checkbox');
+            const todayAttendance = {};
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            currentClass.students.forEach((student, index) => {
+                todayAttendance[student.roll] = checkboxes[index].checked;
+            });
+            
+            // Save attendance record
+            if (!attendanceRecords[currentClassId]) {
+                attendanceRecords[currentClassId] = {};
+            }
+            attendanceRecords[currentClassId][today] = todayAttendance;
+            
+            // Save to localStorage
+            localStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+            
+            // Send attendance emails
+            sendAttendanceEmails(todayAttendance, today);
+            
+            // Show notification
+            showNotification('Attendance submitted successfully! Emails sent to students.');
+            
+            // Update branch card immediately
+            updateBranchCardStats(currentClassId);
+            
+            // If we're on the summary page, update it too
+            if (views.summary.classList.contains('hidden') === false) {
+                generateSummary();
+            }
+        }
+        
+        // Send attendance emails to students
+        function sendAttendanceEmails(todayAttendance, date) {
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+
+            // Format date for display
+            const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            currentClass.students.forEach(student => {
+                if (!student.email) return;
+
+                const status = todayAttendance[student.roll] ? "Present" : "Absent";
+                
+                // Customize email message based on attendance status
+                let emailMessage;
+                if (todayAttendance[student.roll]) {
+                    emailMessage = `Dear ${student.name} (Roll No: ${student.roll}), your attendance has been marked as PRESENT for ${formattedDate} in ${currentClass.branch} ${currentClass.semester}${currentClass.section}.`;
+                } else {
+                    emailMessage = `Dear ${student.name} (Roll No: ${student.roll}), your attendance has been marked as ABSENT for ${formattedDate} in ${currentClass.branch} ${currentClass.semester}${currentClass.section}.`;
+                }
+
+                // Send email using EmailJS
+                emailjs.send("ravish7764", "template_vs4zd19", {
+                    to_email: student.email,
+                    student_name: student.name,
+                    roll: student.roll,
+                    date: formattedDate,
+                    status: status,
+                    class: `${currentClass.branch} ${currentClass.semester}${currentClass.section}`,
+                    message: emailMessage  // Add the customized message
+                }).then(() => {
+                    console.log("Email sent to " + student.email);
+                }).catch(err => {
+                    console.error("Email error", err);
+                    showNotification(`Failed to send email to ${student.email}`, 'error');
+                });
+            });
+        }
+        
+        // Update branch card stats immediately after attendance submission
+        function updateBranchCardStats(classId) {
+            const branchCard = document.querySelector(`.branch-card.selected`);
+            if (!branchCard) return;
+            
+            // Show update animation
+            const animation = branchCard.querySelector('.update-animation');
+            animation.classList.add('visible');
+            
+            // Calculate new days recorded
+            const daysRecorded = Object.keys(attendanceRecords[classId] || {}).length;
+            
+            // Update the days count with animation
+            const daysElement = branchCard.querySelector('.days-count');
+            daysElement.textContent = daysRecorded;
+            daysElement.classList.add('days-updated');
+            
+            // Remove animation classes after delay
+            setTimeout(() => {
+                animation.classList.remove('visible');
+                daysElement.classList.remove('days-updated');
+            }, 1000);
+        }
+        
+        // Generate attendance summary
+        function generateSummary() {
+            if (!currentClassId) return;
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            // Update summary stats
+            totalStudentsEl.textContent = currentClass.students.length;
+            
+            const classAttendance = attendanceRecords[currentClassId] || {};
+            const daysRecorded = Object.keys(classAttendance).length;
+            totalDaysEl.textContent = daysRecorded;
+            
+            // Calculate average attendance percentage
+            let totalPossible = currentClass.students.length * daysRecorded;
+            let totalPresent = 0;
+            
+            if (totalPossible > 0) {
+                for (const date in classAttendance) {
+                    for (const roll in classAttendance[date]) {
+                        if (classAttendance[date][roll]) {
+                            totalPresent++;
+                        }
+                    }
+                }
+                
+                const avgPercentage = Math.round((totalPresent / totalPossible) * 100);
+                avgAttendanceEl.textContent = `${avgPercentage}%`;
+            } else {
+                avgAttendanceEl.textContent = '0%';
+            }
+            
+            // Generate summary table
+            summaryTableBody.innerHTML = '';
+            
+            currentClass.students.forEach(student => {
+                let presentCount = 0;
+                
+                // Count how many days this student was present
+                for (const date in classAttendance) {
+                    if (classAttendance[date][student.roll]) {
+                        presentCount++;
+                    }
+                }
+                
+                // Calculate attendance percentage
+                const percentage = daysRecorded > 0 ? Math.round((presentCount / daysRecorded) * 100) : 0;
+                
+                // Create table row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.roll}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email || 'N/A'}</td>
+                    <td>${presentCount} / ${daysRecorded}</td>
+                    <td>${percentage}%</td>
+                    <td>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${percentage}%"></div>
+                        </div>
+                    </td>
+                `;
+                
+                summaryTableBody.appendChild(row);
+            });
+        }
+        
+        // Download attendance data as CSV
+        function downloadCsv() {
+            if (!currentClassId) return;
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            const classAttendance = attendanceRecords[currentClassId] || {};
+            const daysRecorded = Object.keys(classAttendance).length;
+            
+            let csvContent = 'Roll No,Name,Email,Attendance Percentage,Days Present,Total Days\n';
+            
+            currentClass.students.forEach(student => {
+                let presentCount = 0;
+                
+                for (const date in classAttendance) {
+                    if (classAttendance[date][student.roll]) {
+                        presentCount++;
+                    }
+                }
+                
+                const percentage = daysRecorded > 0 ? Math.round((presentCount / daysRecorded) * 100) : 0;
+                
+                csvContent += `${student.roll},${student.name},${student.email || 'N/A'},${percentage}%,${presentCount},${daysRecorded}\n`;
+            });
+            
+            // Create a Blob and download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', `attendance_${currentClass.id}.csv`);
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('CSV file downloaded successfully!');
+        }
+        
+        // Download attendance data as PDF
+        function downloadPdf() {
+            if (!currentClassId) return;
+            
+            const currentClass = classes.find(cls => cls.id === currentClassId);
+            if (!currentClass) return;
+            
+            const classAttendance = attendanceRecords[currentClassId] || {};
+            const daysRecorded = Object.keys(classAttendance).length;
+            
+            // Create a new jsPDF instance
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(18);
+            doc.text(`Attendance Summary - ${currentClass.branch} ${currentClass.semester}${currentClass.section}`, 14, 15);
+            
+            // Add summary information
+            doc.setFontSize(12);
+            doc.text(`Total Students: ${currentClass.students.length}`, 14, 25);
+            doc.text(`Days Recorded: ${daysRecorded}`, 14, 30);
+            
+            // Prepare data for the table
+            const tableData = [];
+            currentClass.students.forEach(student => {
+                let presentCount = 0;
+                
+                for (const date in classAttendance) {
+                    if (classAttendance[date][student.roll]) {
+                        presentCount++;
+                    }
+                }
+                
+                const percentage = daysRecorded > 0 ? Math.round((presentCount / daysRecorded) * 100) : 0;
+                
+                tableData.push([
+                    student.roll,
+                    student.name,
+                    student.email || 'N/A',
+                    `${presentCount}/${daysRecorded}`,
+                    `${percentage}%`
+                ]);
+            });
+            
+            // Add the table
+            doc.autoTable({
+                startY: 40,
+                head: [['Roll No', 'Name', 'Email', 'Days Present', 'Attendance %']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [67, 97, 238] },
+                styles: { fontSize: 10 },
+                columnStyles: {
+                    0: { cellWidth: 25 },
+                    1: { cellWidth: 40 },
+                    2: { cellWidth: 50 },
+                    3: { cellWidth: 25 },
+                    4: { cellWidth: 25 }
+                }
+            });
+            
+            // Add footer
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(10);
+                doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.getWidth() - 40, doc.internal.pageSize.getHeight() - 10);
+                doc.text(new Date().toLocaleDateString(), 14, doc.internal.pageSize.getHeight() - 10);
+            }
+            
+            // Download the PDF
+            doc.save(`attendance_${currentClass.id}.pdf`);
+            
+            showNotification('PDF report downloaded successfully!');
+        }
+        
+        // Reset the entire system
+        function resetSystem() {
+            if (confirm('Are you sure you want to reset the system? All data will be permanently deleted.')) {
+                localStorage.removeItem('classes');
+                localStorage.removeItem('attendanceRecords');
+                
+                // Reset data
+                classes = [];
+                attendanceRecords = {};
+                currentClassId = null;
+                
+                // Reset form fields
+                document.getElementById('branch').value = '';
+                document.getElementById('semester').value = '';
+                document.getElementById('section').value = '';
+                document.getElementById('num-students').value = '';
+                branchSearch.value = '';
+                
+                // Clear displays
+                currentClassDisplay.textContent = '';
+                attendanceClassDisplay.textContent = '';
+                summaryClassDisplay.textContent = '';
+                
+                // Render empty state
+                renderBranchCards();
+                
+                // Show branch selection
+                showView('branch-selection');
+                
+                // Update navigation
+                navButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('[data-view="branch-selection"]').classList.add('active');
+                
+                mobileNavButtons.forEach(btn => btn.classList.remove('active'));
+                document.querySelector('.mobile-nav-btn[data-view="branch-selection"]').classList.add('active');
+                
+                showNotification('System has been reset successfully.');
+            }
+        }
+        
+        // Initialize the app when the page loads
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
